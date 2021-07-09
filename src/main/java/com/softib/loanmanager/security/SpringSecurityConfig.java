@@ -40,9 +40,12 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter{
         			"/swagger-resources/**",
         			"/configuration/security",
         			"/swagger-ui.html",
-        			"/webjars/**").permitAll()
+        			"/webjars/**").permitAll() 
         .and().authorizeRequests().antMatchers("/*").hasAnyAuthority("ADMIN","BANKER","USER")
         .and().authorizeRequests().antMatchers("/loan/{id}/**").hasAnyAuthority("ADMIN","BANKER","USER")
+	.and().authorizeRequests().antMatchers("/loanTypes").hasAnyAuthority("ADMIN","BANKER","USER")
+	.and().authorizeRequests().antMatchers("/loanTypes/*").hasAnyAuthority("ADMIN","BANKER","USER")
+	.and().authorizeRequests().antMatchers("/loanTypes/**").hasAnyAuthority("ADMIN","BANKER","USER")
         .and().authorizeRequests().antMatchers("/api2").hasAnyAuthority("ADMIN","BANKER","USER")
         .and().authorizeRequests().antMatchers("/api3").hasAnyAuthority("ADMIN","BANKER","USER")
         .and().authorizeRequests().antMatchers("/api4").hasAnyAuthority("ADMIN","BANKER","USER")
