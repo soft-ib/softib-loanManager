@@ -69,5 +69,13 @@ public class BillRestAPI {
 		return new ResponseEntity<>(billsByLoan, HttpStatus.OK);
 	}
 	
+	@GetMapping(value="allBillsByLoan/{idLoan}")
+	@ResponseStatus(HttpStatus.OK)
+	public ResponseEntity<List<Bill>> updateMyLoan(@PathVariable(value = "idLoan") Long idLoan) {
+		
+		List<Bill> billsByLoan =billRepository.allBillsByLoanId(idLoan);
+		return new ResponseEntity<>(billsByLoan, HttpStatus.OK);
+	}
+	
 
 }
