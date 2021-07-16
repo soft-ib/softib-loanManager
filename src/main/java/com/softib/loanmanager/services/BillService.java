@@ -1,6 +1,9 @@
 package com.softib.loanmanager.services;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -25,10 +28,12 @@ public class BillService {
 		if(loan != null
 				&& loan.getDurationOfAmount() != null){
 			Integer numberofBills=loanService.getNumberOfBillsFromYear(loan.getDurationOfAmount());
+			Calendar calendar = Calendar.getInstance();
 			
 			for(int i=0;i<numberofBills;i++){
-				 Bill bill=new Bill(loan.getCreationDate(),BillStatus.PENDING,loan.getAmountTotal(),loan);
+				 Bill bill=new Bill(convertDateToString(calendar.getTime()),BillStatus.PENDING,loan.getAmountTotal(),loan);
 				 billsToADD.add(bill);
+				 calendar.add(Calendar.MONTH, 1);
 				 
 			}
 			return billRepository.saveAll(billsToADD);
@@ -54,6 +59,13 @@ public class BillService {
 		return null;
 	}
 		
+	public String convertDateToString(Date date){
+		String pattern = "dd/MM/yyyy";
+		DateFormat df = new SimpleDateFormat(pattern);
+		String todayAsString = df.format(date);
+		return todayAsString;
+	}
+	
 	
 
 

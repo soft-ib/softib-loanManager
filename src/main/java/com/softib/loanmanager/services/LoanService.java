@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.softib.loanmanager.entity.Bill;
+import com.softib.loanmanager.entity.Document;
 import com.softib.loanmanager.entity.Loan;
 import com.softib.loanmanager.entity.LoanType;
 import com.softib.loanmanager.enumeration.BillStatus;
@@ -32,6 +33,8 @@ public class LoanService {
 	
 	@Autowired
 	private BillService billService;
+	@Autowired
+	private DocumentService documentService;
 	
 	
 	public String simulateLoan(Integer duration,Double amount, String loanType){
@@ -90,7 +93,7 @@ public class LoanService {
 			loanToCreate.setInterestRate(interestAmount);
 			loanToCreate.setInsuranceRate(insuranceAmount);
 			loanToCreate.setCurrency("TND");
-			//loanToCreate.setUserId(userService.);
+			loanToCreate.setUserId(userService.getCurrentUserName());
 			loanToCreate.setStatus(LoanStatus.InProgress);		
 			loanToCreate.setLoanType(loanTypeToCreate);
 			return  loanRepository.save(loanToCreate);
@@ -186,10 +189,18 @@ public class LoanService {
 	}
 	
 	
-	public Loan changeLoanToValidate(Loan loanToValidate){
+	public Loan changeLoanToValidate(Loan loanToValidate, List<Document> documentList){
+		String status=null;
+		String response = documentService.checkWeightedDocument(documentList);
+		if(!response.equals("")){
+			String[] arrOfString=response.split(":");
+			status=arrOfString[1];
+		}
 		if(loanToValidate != null
 				&& loanToValidate.getStatus() != null 
-				&& LoanStatus.InProgress == loanToValidate.getStatus()){
+				&& LoanStatus.InProgress == loanToValidate.getStatus()
+				&&  status !=null
+				&& "Validate".equalsIgnoreCase(status)){
 			loanToValidate.setStatus(LoanStatus.Validate);
 			return loanRepository.save(loanToValidate);
 		}

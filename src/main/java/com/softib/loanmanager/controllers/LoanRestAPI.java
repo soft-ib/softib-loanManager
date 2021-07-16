@@ -17,9 +17,11 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.softib.loanmanager.entity.Bill;
+import com.softib.loanmanager.entity.Document;
 import com.softib.loanmanager.entity.Loan;
 import com.softib.loanmanager.entity.LoanType;
 import com.softib.loanmanager.repository.BillRepository;
+import com.softib.loanmanager.repository.DocumentRepository;
 import com.softib.loanmanager.repository.LoanRepository;
 import com.softib.loanmanager.repository.LoanTypeRepository;
 import com.softib.loanmanager.services.LoanService;
@@ -40,6 +42,9 @@ public class LoanRestAPI {
 	@Autowired
 	private LoanRepository loanRepository;
 	
+	@Autowired
+	private DocumentRepository documentRepository;
+	
 	
 	
 	@GetMapping(value = "testTotalCost/{duration}/{amount}/{label}")
@@ -57,11 +62,12 @@ public class LoanRestAPI {
 	//createLoan
 	@PostMapping("/testCreateLoan/{duration}/{amount}/{label}")
 	@ResponseStatus(HttpStatus.CREATED)
-	public ResponseEntity<Loan> createLoan(@PathVariable(value = "duration") Integer duration,@PathVariable(value = "amount") Double amount,@PathVariable(value = "label") String label,@RequestParam(name = "idloantype") Long idloantype) {
-		Optional<LoanType> loanType  =  loanTypeRepository.findById(idloantype);
-		LoanType loanTypeObject = loanType.get();
+	public ResponseEntity<Loan> createLoan(@PathVariable(value = "duration") Integer duration,@PathVariable(value = "amount") Double amount,@PathVariable(value = "label") String label) {
+		//Optional<LoanType> loanType  =  loanTypeRepository.findById(idloantype);
+		LoanType loanType  =  loanTypeRepository.loanTypeByLabel(label);
+		//LoanType loanTypeObject = loanType.get();
 		//loan.setLoan(loanTypeObject);
-		return new ResponseEntity<>(loanService.createLoan(duration, amount, label,loanTypeObject), HttpStatus.OK);
+		return new ResponseEntity<>(loanService.createLoan(duration, amount, label,loanType), HttpStatus.OK);
 	}
 	
 	@GetMapping(value = "checkIfMyLoanisClosed/{idLoan}")
@@ -86,9 +92,10 @@ public class LoanRestAPI {
 	@ResponseStatus(HttpStatus.OK)
 	public ResponseEntity<Loan> validateLoan(@PathVariable(value = "idLoan") Long idLoan) {
 		
-		Optional<Loan> billToValidate =loanRepository.findById(idLoan);
-		Loan loanObjectToValidate = billToValidate.get();
-		return new ResponseEntity<>(loanService.changeLoanToValidate(loanObjectToValidate), HttpStatus.OK);
+		Optional<Loan> loanToValidate =loanRepository.findById(idLoan);
+		Loan loanObjectToValidate = loanToValidate.get();
+		List<Document> documentList =  documentRepository.allDocumentsByLoanId(idLoan);
+		return new ResponseEntity<>(loanService.changeLoanToValidate(loanObjectToValidate,documentList), HttpStatus.OK);
 	}
 
 }
